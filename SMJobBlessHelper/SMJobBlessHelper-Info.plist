@@ -12,8 +12,7 @@
 	<string>1.0</string>
 	<key>SMAuthorizedClients</key>
 	<array>
-		<string>identifier com.apple.bsd.SMJobBlessApp and certificate leaf[subject.CN] = &quot;Joe Developer&quot;</string>
-		<string>identifier com.apple.bsd.SMJobBlessApp and certificate leaf[subject.CN] = &quot;Joe Developer Development&quot;</string>
+		<string>identifier com.apple.bsd.SMJobBlessApp and certificate leaf[subject.CN] = &quot;Mac Developer: Nathan de Vries (T3RB9JQ8KZ)&quot;</string>
 	</array>
 </dict>
 </plist>

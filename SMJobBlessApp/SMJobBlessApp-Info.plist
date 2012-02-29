@@ -23,7 +23,7 @@
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>com.apple.bsd.SMJobBlessHelper</key>
-		<string>identifier com.apple.bsd.SMJobBlessHelper and certificate leaf[subject.CN] = &quot;Joe Developer&quot;</string>
+		<string>identifier com.apple.bsd.SMJobBlessHelper and certificate leaf[subject.CN] = &quot;Mac Developer: Nathan de Vries (T3RB9JQ8KZ)&quot;</string>
 	</dict>
 </dict>
 </plist>
