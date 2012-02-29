@@ -4,5 +4,10 @@
 <dict>
 	<key>Label</key>
 	<string>com.apple.bsd.SMJobBlessHelper</string>
+	<key>MachServices</key>
+	<dict>
+		<key>com.apple.bsd.SMJobBlessHelper</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

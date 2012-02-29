@@ -52,26 +52,78 @@ Copyright (C) 2011 Apple Inc. All Rights Reserved.
 #import <Security/Authorization.h>
 #import "SMJobBlessAppController.h"
 
-@implementation SMJobBlessAppController
-- (void)applicationDidFinishLaunching:(NSNotification *)notification
-{
-	NSError *error = nil;
-	if (![self blessHelperWithLabel:@"com.apple.bsd.SMJobBlessHelper" error:&error]) {
-		NSLog(@"Something went wrong!");
-	} else {
-		/* At this point, the job is available. However, this is a very
-		 * simple sample, and there is no IPC infrastructure set up to
-		 * make it launch-on-demand. You would normally achieve this by
-		 * using a Sockets or MachServices dictionary in your launchd.plist.
-		 */
-		NSLog(@"Job is available!");
-		
-		[self->_textField setHidden:false];
-	}
-}
+
+@interface SMJobBlessAppController ()
+
+@property (nonatomic, assign) IBOutlet NSTextField* textField;
 
 - (BOOL)blessHelperWithLabel:(NSString *)label error:(NSError **)error;
-{
+
+@end
+
+
+@implementation SMJobBlessAppController
+
+@synthesize textField=_textField;
+
+- (void)appendLog:(NSString *)log {
+    self.textField.stringValue = [self.textField.stringValue stringByAppendingFormat:@"\n%@", log];
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
+	NSError *error = nil;
+	if (![self blessHelperWithLabel:@"com.apple.bsd.SMJobBlessHelper" error:&error]) {
+        [self appendLog:[NSString stringWithFormat:@"Failed to bless helper. Error: %@", error]];
+        return;
+    }
+    
+    self.textField.stringValue = @"Helper available.";
+    
+    xpc_connection_t connection = xpc_connection_create_mach_service("com.apple.bsd.SMJobBlessHelper", NULL, 0);
+    
+    if (!connection) {
+        [self appendLog:@"Failed to create XPC connection."];
+        return;
+    }
+    
+    xpc_connection_set_event_handler(connection, ^(xpc_object_t event) {
+        xpc_type_t type = xpc_get_type(event);
+        
+        if (type == XPC_TYPE_ERROR) {
+            
+            if (event == XPC_ERROR_CONNECTION_INTERRUPTED) {
+                [self appendLog:@"XPC connection interupted."];
+                
+            } else if (event == XPC_ERROR_CONNECTION_INVALID) {
+                [self appendLog:@"XPC connection invalid, releasing."];
+                xpc_release(connection);
+                
+            } else {
+                [self appendLog:@"Unexpected XPC connection error."];
+            }
+            
+        } else {
+            [self appendLog:@"Unexpected XPC connection event."];
+        }
+    });
+    
+    xpc_connection_resume(connection);
+    
+    xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
+    const char* request = "Hi there, helper service.";
+    xpc_dictionary_set_string(message, "request", request);
+    
+    [self appendLog:[NSString stringWithFormat:@"Sending request: %s", request]];
+    
+    xpc_connection_send_message_with_reply(connection, message, dispatch_get_main_queue(), ^(xpc_object_t event) {
+        const char* response = xpc_dictionary_get_string(event, "reply");
+        [self appendLog:[NSString stringWithFormat:@"Received response: %s.", response]];
+    });
+}
+
+- (BOOL)blessHelperWithLabel:(NSString *)label
+                       error:(NSError **)error {
+    
 	BOOL result = NO;
 
 	AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
@@ -86,7 +138,7 @@ Copyright (C) 2011 Apple Inc. All Rights Reserved.
 	/* Obtain the right to install privileged helper tools (kSMRightBlessPrivilegedHelper). */
 	OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
 	if (status != errAuthorizationSuccess) {
-		NSLog(@"Failed to create AuthorizationRef, return code %ld", status);
+        [self appendLog:[NSString stringWithFormat:@"Failed to create AuthorizationRef. Error code: %ld", status]];
         
 	} else {
 		/* This does all the work of verifying the helper tool against the application
@@ -99,4 +151,5 @@ Copyright (C) 2011 Apple Inc. All Rights Reserved.
 	
 	return result;
 }
+
 @end

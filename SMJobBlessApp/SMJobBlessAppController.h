@@ -50,9 +50,7 @@
 #import <Cocoa/Cocoa.h>
 
 @interface SMJobBlessAppController : NSObject {
-	IBOutlet NSTextField *_textField;
+    NSTextField* _textField;
 }
-
-- (BOOL)blessHelperWithLabel:(NSString *)label error:(NSError **)error;
 
 @end
