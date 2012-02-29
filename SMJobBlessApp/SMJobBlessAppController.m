@@ -86,7 +86,8 @@ Copyright (C) 2011 Apple Inc. All Rights Reserved.
 	/* Obtain the right to install privileged helper tools (kSMRightBlessPrivilegedHelper). */
 	OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
 	if (status != errAuthorizationSuccess) {
-		NSLog(@"Failed to create AuthorizationRef, return code %i", status);
+		NSLog(@"Failed to create AuthorizationRef, return code %ld", status);
+        
 	} else {
 		/* This does all the work of verifying the helper tool against the application
 		 * and vice-versa. Once verification has passed, the embedded launchd.plist
