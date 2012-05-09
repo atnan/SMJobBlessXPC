@@ -79,7 +79,7 @@ Copyright (C) 2011 Apple Inc. All Rights Reserved.
     
     self.textField.stringValue = @"Helper available.";
     
-    xpc_connection_t connection = xpc_connection_create_mach_service("com.apple.bsd.SMJobBlessHelper", NULL, 0);
+    xpc_connection_t connection = xpc_connection_create_mach_service("com.apple.bsd.SMJobBlessHelper", NULL, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
     
     if (!connection) {
         [self appendLog:@"Failed to create XPC connection."];
