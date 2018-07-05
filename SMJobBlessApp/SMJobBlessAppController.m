@@ -67,7 +67,9 @@ Copyright (C) 2011 Apple Inc. All Rights Reserved.
 @synthesize textField=_textField;
 
 - (void)appendLog:(NSString *)log {
-    self.textField.stringValue = [self.textField.stringValue stringByAppendingFormat:@"\n%@", log];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.textField.stringValue = [self.textField.stringValue stringByAppendingFormat:@"\n%@", log];
+    });
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
